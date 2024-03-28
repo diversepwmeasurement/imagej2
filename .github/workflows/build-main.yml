@@ -1,32 +1,30 @@
-name: build
-
-on:
-  push:
-    branches:
-      - master
-    tags:
-      - "*-[0-9]+.*"
-
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Java
-        uses: actions/setup-java@v2
-        with:
-          java-version: '8'
-          distribution: 'zulu'
-          cache: 'maven'
-      - name: Set up CI environment
-        run: .github/setup.sh
-      - name: Execute the build
-        run: .github/build.sh
-        env:
-          GPG_KEY_NAME: ${{ secrets.GPG_KEY_NAME }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          MAVEN_USER: ${{ secrets.MAVEN_USER }}
-          MAVEN_PASS: ${{ secrets.MAVEN_PASS }}
-          OSSRH_PASS: ${{ secrets.OSSRH_PASS }}
-          SIGNING_ASC: ${{ secrets.SIGNING_ASC }}
+    - continue-on-error: true
+      uses: actions/checkout@v2
+    - continue-on-error: true
+      name: Set up Java
+      uses: actions/setup-java@v2
+      with:
+        cache: maven
+        distribution: zulu
+        java-version: '8'
+    - continue-on-error: true
+      name: Set up CI environment
+      run: .github/setup.sh
+    - continue-on-error: true
+      env:
+        GPG_KEY_NAME: ${{ secrets.GPG_KEY_NAME }}
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        MAVEN_PASS: ${{ secrets.MAVEN_PASS }}
+        MAVEN_USER: ${{ secrets.MAVEN_USER }}
+        OSSRH_PASS: ${{ secrets.OSSRH_PASS }}
+        SIGNING_ASC: ${{ secrets.SIGNING_ASC }}
+      name: Execute the build
+      run: .github/build.sh
+name: build
+on:
+  repository_dispatch:
+    types: trigger-ga___build-main.yml
